@@ -6,7 +6,7 @@ var router = express.Router();
 var Sequelize = require('sequelize');
 
 const sequelize = new Sequelize('go', 'root', '123456', {
-    host: 'localhost',
+    host: '10.103.191.100',
     dialect: 'mysql',
 
     pool: {
