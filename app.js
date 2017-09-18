@@ -1,4 +1,6 @@
 var express = require('express');
+var FileStreamRotator = require('file-stream-rotator');
+var fs = require('fs');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -12,13 +14,30 @@ var main_page = require('./routes/main_page');
 
 var app = express();
 
+var logDirectory = path.join(__dirname, 'log')
+
+// ensure log directory exists
+fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
+
+// create a rotating write stream
+var accessLogStream = FileStreamRotator.getStream({
+    date_format: 'YYYYMMDD',
+    filename: path.join(logDirectory, 'access-%DATE%.log'),
+    frequency: 'daily',
+    verbose: false
+})
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+// app.use(logger('dev'));
+// setup the logger
+app.use(logger('combined', {stream: accessLogStream}))
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());

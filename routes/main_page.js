@@ -3,12 +3,11 @@
  */
 var express = require('express');
 var router = express.Router();
-var path = require('path');
 var Sequelize = require('sequelize');
-const sequelize = new Sequelize('go', 'root', '123456', {
-    host: 'localhost',
-    dialect: 'mysql',
 
+const sequelize = new Sequelize('go', 'root', '123456', {
+    host: '10.103.191.165',
+    dialect: 'mysql',
     pool: {
         max: 5,
         min: 0,
@@ -55,6 +54,9 @@ router.get('/list', async function (req, res, next) {
     //         data: list
     //     })
     // });
+
+    req.query.limit = req.query.limit ? req.query.limit : 10;
+    req.query.offset = req.query.offset ? req.query.offset : 0;
     var aaaa = await List.findAndCountAll({
         'limit': parseInt(req.query.limit),
         'offset': parseInt(req.query.offset)
@@ -108,9 +110,7 @@ router.put('/detail/:id', function (req, res, next) {
 
 // add
 router.post('/detail/', function (req, res, next) {
-    console.log('---------');
     console.log(req.body);
-    console.log('=========');
     List.create(req.body).then(
         aa => {
             res.send({
