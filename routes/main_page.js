@@ -3,8 +3,8 @@
  */
 var express = require('express');
 var router = express.Router();
+var path = require('path');
 var Sequelize = require('sequelize');
-
 const sequelize = new Sequelize('go', 'root', '123456', {
     host: 'localhost',
     dialect: 'mysql',
@@ -47,20 +47,7 @@ const List = sequelize.define('list', {
     freezeTableName: true // Model 对应的表名将与model名相同
 });
 
-// List.sync({force: false}).then(function () {
-//     // 已创建数据表
-//     return List.create({
-//         name: '1',
-//         mId: '2',
-//         imgList: '3',
-//     });
-// });
-
-
-// List.destroy({where: {id: '1'}}).then(function (msg) {
-//     console.log(msg);
-// });
-
+// list
 router.get('/list', async function (req, res, next) {
     // List.findAll().then(list => {
     //     res.send({
@@ -68,8 +55,6 @@ router.get('/list', async function (req, res, next) {
     //         data: list
     //     })
     // });
-    console.log(req.query.limit);
-    console.log(req.query.offset);
     var aaaa = await List.findAndCountAll({
         'limit': parseInt(req.query.limit),
         'offset': parseInt(req.query.offset)
@@ -79,9 +64,9 @@ router.get('/list', async function (req, res, next) {
             data: list
         })
     });
-    console.log(aaaa);
 });
 
+// delete
 router.delete('/detail/:id', function (req, res, next) {
     // console.log('res', req.params.id);
     List.destroy({where: {id: req.params.id}}).then(function (msg) {
@@ -94,6 +79,7 @@ router.delete('/detail/:id', function (req, res, next) {
     });
 });
 
+// get
 router.get('/detail/:id', function (req, res, next) {
     List.findById(req.params.id).then(project => {
         res.send({
@@ -104,6 +90,7 @@ router.get('/detail/:id', function (req, res, next) {
 
 });
 
+// edit
 router.put('/detail/:id', function (req, res, next) {
     List.update(req.body,
         {
@@ -119,8 +106,11 @@ router.put('/detail/:id', function (req, res, next) {
     })
 });
 
+// add
 router.post('/detail/', function (req, res, next) {
+    console.log('---------');
     console.log(req.body);
+    console.log('=========');
     List.create(req.body).then(
         aa => {
             res.send({
@@ -129,7 +119,23 @@ router.post('/detail/', function (req, res, next) {
                 data: aa
             })
         })
-
 });
 
+
+// 图片上传模块
+var multer = require('multer');
+var storage = multer.diskStorage({
+    destination: './public/files',
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+})
+var upload = multer({storage: storage});
+var fs = require('fs');
+
+router.post('/file1/', upload.single('file'), function (req, res, next) {
+    console.log(req.file);
+    res.send(req.file.path)
+
+});
 module.exports = router;
