@@ -6,9 +6,8 @@ var router = express.Router();
 var Sequelize = require('sequelize');
 
 const sequelize = new Sequelize('go', 'root', '123456', {
-    host: 'localhost',
+    host: '10.103.191.165',
     dialect: 'mysql',
-
     pool: {
         max: 5,
         min: 0,
@@ -68,6 +67,9 @@ router.get('/list', async function (req, res, next) {
     //         data: list
     //     })
     // });
+
+    req.query.limit = req.query.limit ? req.query.limit : 10;
+    req.query.offset = req.query.offset ? req.query.offset : 0;
     console.log(req.query.limit);
     console.log(req.query.offset);
     var aaaa = await List.findAndCountAll({
