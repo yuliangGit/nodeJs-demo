@@ -6,6 +6,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var handle_err = require('./handle_err/handle_err');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -43,10 +44,12 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 路由
 app.use('/', index);
 app.use('/users', users);
 app.use('/study', study);
 app.use('/main_page', main_page);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -55,15 +58,21 @@ app.use(function (req, res, next) {
     next(err);
 });
 
-// error handler
-app.use(function (err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+// 处理报错
+app.use(handle_err);
 
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
-});
+
+// error handler
+// app.use(function (err, req, res, next) {
+//     console.log(2222, err);
+//     // set locals, only providing error in development
+//     res.locals.message = err.message;
+//     console.log('------', req.app.get('env'));
+//     res.locals.error = req.app.get('env') === 'development' ? err : {};
+//     console.log('app.js error handler', err);
+//     // render the error page
+//     res.status(err.status || 500);
+//     res.render('error');
+// });
 
 module.exports = app;
