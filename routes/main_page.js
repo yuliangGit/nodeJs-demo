@@ -49,83 +49,89 @@ const List = sequelize.define('list', {
 
 // list
 router.get('/list', async function (req, res, next) {
-    // List.findAll().then(list => {
-    //     res.send({
-    //         code: 200,
-    //         data: list
-    //     })
-    // });
     try {
-        req.aa.aa = 1
-
+        req.query.limit = req.query.limit ? req.query.limit : 10;
+        req.query.offset = req.query.offset ? req.query.offset : 0;
+        var aaaa = await List.findAndCountAll({
+            'limit': parseInt(req.query.limit),
+            'offset': parseInt(req.query.offset)
+        }).then(list => {
+            res.send({
+                code: 200,
+                data: list
+            })
+        });
     } catch (err) {
-        console.log(11111, err);
         next(err)
     }
-    req.query.limit = req.query.limit ? req.query.limit : 10;
-    req.query.offset = req.query.offset ? req.query.offset : 0;
-    var aaaa = await List.findAndCountAll({
-        'limit': parseInt(req.query.limit),
-        'offset': parseInt(req.query.offset)
-    }).then(list => {
-        res.send({
-            code: 200,
-            data: list
-        })
-    });
+
 });
 
 // delete
 router.delete('/detail/:id', function (req, res, next) {
     // console.log('res', req.params.id);
-    List.destroy({where: {id: req.params.id}}).then(function (msg) {
-        console.log('delete msg:::', msg);
-        res.send({
-            code: 200,
-            message: '删除成功',
-            detail: msg
-        })
-    });
+    try {
+        List.destroy({where: {id: req.params.id}}).then(function (msg) {
+            console.log('delete msg:::', msg);
+            res.send({
+                code: 200,
+                message: '删除成功',
+                detail: msg
+            })
+        });
+    } catch (err) {
+        next(err)
+    }
 });
 
 // get
 router.get('/detail/:id', function (req, res, next) {
-    List.findById(req.params.id).then(project => {
-        res.send({
-            code: 200,
-            data: project
-        })
-    })
-
+    try {
+        List.findById(req.params.id).then(project => {
+            res.send({
+                code: 200,
+                data: project
+            })
+        });
+    } catch (err) {
+        next(err)
+    }
 });
 
 // edit
 router.put('/detail/:id', function (req, res, next) {
-    List.update(req.body,
-        {
-            where: {
-                id: req.params.id
+    try {
+        List.update(req.body,
+            {
+                where: {
+                    id: req.params.id
+                }
             }
-        }
-    ).then(project => {
-        res.send({
-            code: 200,
-            message: '修改成功',
+        ).then(project => {
+            res.send({
+                code: 200,
+                message: '修改成功',
+            })
         })
-    })
+    } catch (err) {
+        next(err)
+    }
 });
 
 // add
 router.post('/detail/', function (req, res, next) {
-    console.log(req.body);
-    List.create(req.body).then(
-        aa => {
-            res.send({
-                code: 200,
-                message: '新增成功',
-                data: aa
+    try {
+        List.create(req.body).then(
+            aa => {
+                res.send({
+                    code: 200,
+                    message: '新增成功',
+                    data: aa
+                })
             })
-        })
+    } catch (err) {
+        next(err)
+    }
 });
 
 
@@ -136,13 +142,16 @@ var storage = multer.diskStorage({
     filename: function (req, file, cb) {
         cb(null, file.originalname)
     }
-})
+});
 var upload = multer({storage: storage});
 var fs = require('fs');
 
 router.post('/file1/', upload.single('file'), function (req, res, next) {
-    console.log(req.file);
-    res.send(req.file.path)
-
+    try {
+        res.send(req.file.path)
+    } catch (err) {
+        next(err)
+    }
 });
+
 module.exports = router;
