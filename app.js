@@ -17,6 +17,9 @@ var app = express();
 
 var logDirectory = path.join(__dirname, 'log')
 
+
+// 处理报错
+app.use(handle_err);
 // ensure log directory exists
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
 
@@ -28,7 +31,7 @@ var accessLogStream = FileStreamRotator.getStream({
     verbose: false
 })
 
-console.log('env::::',process.env.NODE_ENV);
+console.log('env::::', process.env.NODE_ENV);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -57,9 +60,6 @@ app.use(function (req, res, next) {
     err.status = 404;
     next(err);
 });
-
-// 处理报错
-app.use(handle_err);
 
 
 // error handler
